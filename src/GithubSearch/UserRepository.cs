@@ -20,8 +20,7 @@ namespace GithubSearch
         public async Task<User> GetUser(string username)
         {
             var result = await httpClient.GetAsync(username);
-            result.EnsureSuccessStatusCode();
-            return await result.Content.ReadAsAsync<User>();
+            return result.IsSuccessStatusCode ? await result.Content.ReadAsAsync<User>() : null;
         }
     }
 }
