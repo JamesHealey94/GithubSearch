@@ -1,12 +1,20 @@
 ﻿using GithubSearch.Models;
+using System.Threading.Tasks;
 
 namespace GithubSearch
 {
     public class UserService
     {
-        public User GetUser(string username)
+        IUserRepository Repository { get; }
+
+        public UserService(IUserRepository repository)
         {
-            throw new System.NotImplementedException();
+            Repository = repository;
+        }
+
+        public async Task<User> GetUser(string username)
+        {
+            return await Repository.GetUser(username);
         }
     }
 }
