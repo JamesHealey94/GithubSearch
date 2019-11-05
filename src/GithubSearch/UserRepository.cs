@@ -1,5 +1,7 @@
-﻿using GithubSearch.Models;
+﻿using GithubSearch.Models.Domain;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -19,8 +21,35 @@ namespace GithubSearch
 
         public async Task<User> GetUser(string username)
         {
-            var result = await httpClient.GetAsync(username);
-            return result.IsSuccessStatusCode ? await result.Content.ReadAsAsync<User>() : null;
+            var userResult = await httpClient.GetAsync(username);
+            if (!userResult.IsSuccessStatusCode)
+            {
+                return null;
+            }
+            
+            var userResponse = await userResult.Content.ReadAsAsync<Models.Response.User>();
+            var user = new User
+            {
+                Username = userResponse.Login,
+                AvatarUrl = userResponse.Avatar_Url,
+                ProfileUrl = userResponse.Html_Url,
+            };
+
+            var repoResult = await httpClient.GetAsync(userResponse.Repos_Url);
+            if (!repoResult.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            var repos = await repoResult.Content.ReadAsAsync<IEnumerable<Models.Response.Repository>>();
+            user.Repositories = repos?.Select(r => 
+                new Repository
+                {
+                    Name = r.Name,
+                    Description = r.Description,
+                    Stargazers = r.StargazersCount
+                }).ToList();
+            return user;
         }
     }
 }

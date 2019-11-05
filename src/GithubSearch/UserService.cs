@@ -1,4 +1,4 @@
-﻿using GithubSearch.Models;
+﻿using GithubSearch.Models.Domain;
 using System.Threading.Tasks;
 
 namespace GithubSearch
