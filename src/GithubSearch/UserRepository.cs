@@ -34,14 +34,16 @@ namespace GithubSearch
         {
             if (String.IsNullOrWhiteSpace(username)) return null;
 
+            var request = new HttpRequestMessage(HttpMethod.Get, username);
+
             var user = cache.Get(username) as Models.Response.User;
             if (user != null)
             {
                 Console.WriteLine($"Found '{username}' in cache with ETag '{user.ETag?.Tag}'");
-                httpClient.DefaultRequestHeaders.Add("If-None-Match", user.ETag?.Tag);
+                request.Headers.Add("If-None-Match", user.ETag?.Tag);
             }
 
-            var response = await httpClient.GetAsync(username);
+            var response = await httpClient.SendAsync(request);
 
             switch (response.StatusCode)
             {
@@ -68,18 +70,20 @@ namespace GithubSearch
         {
             if (url == null || String.IsNullOrWhiteSpace(url.AbsoluteUri)) return null;
 
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+
             var repos = cache.Get(url.AbsoluteUri) as Models.Response.RepositoryCacheValue;
             if (repos != null)
             {
                 Console.WriteLine($"Found repos for '{url.AbsoluteUri}' in cache with ETag '{repos.ETag?.Tag}'");
-                httpClient.DefaultRequestHeaders.Add("If-None-Match", repos.ETag?.Tag);
+                request.Headers.Add("If-None-Match", repos.ETag?.Tag);
             }
             else
             {
                 repos = new Models.Response.RepositoryCacheValue();
             }
 
-            var response = await httpClient.GetAsync(url);
+            var response = await httpClient.SendAsync(request);
 
             switch (response.StatusCode)
             {
