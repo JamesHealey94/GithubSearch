@@ -5,16 +5,16 @@ namespace GithubSearch
 {
     public class UserService
     {
-        IUserRepository Repository { get; }
+        private readonly IUserRepository repository;
 
         public UserService(IUserRepository repository)
         {
-            Repository = repository;
+            this.repository = repository;
         }
 
         public async Task<User> GetUser(string username)
         {
-            return await Repository.GetUser(username);
+            return await repository.GetUser(username);
         }
     }
 }
