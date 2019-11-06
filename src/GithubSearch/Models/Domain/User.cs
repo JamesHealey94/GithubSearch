@@ -1,12 +1,38 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GithubSearch.Models.Domain
 {
     public class User
     {
         public string Username { get; set; }
-        public string AvatarUrl { get; set; }
+        public Uri AvatarUrl { get; set; }
         public IEnumerable<Repository> Repositories { get; set; }
-        public string ProfileUrl { get; set; }
+        public Uri ProfileUrl { get; set; }
+
+        internal static User From(Response.User user, IEnumerable<Response.Repository> repos)
+        {
+            if (user == null)
+            {
+                return null;
+            }
+            else
+            {
+                return new User
+                {
+                    Username = user.Login,
+                    AvatarUrl = user.Avatar_Url,
+                    ProfileUrl = user.Html_Url,
+                    Repositories = repos?.Select(r =>
+                        new Repository
+                        {
+                            Name = r.Name,
+                            Description = r.Description,
+                            Stargazers = r.StargazersCount
+                        })
+                };
+            }
+        }
     }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.Caching;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,9 +14,16 @@ namespace GithubSearch.Tests.Controllers
     [TestClass]
     public class UserServiceTest
     {
-        readonly UserService UserService = new UserService(new UserRepository(new HttpClient()));
+        UserService UserService;
         
+        [TestInitialize]
+        public void Setup()
+        {
+            UserService = new UserService(new UserRepository(new MemoryCache("cache"), new HttpClient()));
+        }
+
         [DataTestMethod]
+        [TestCategory("Basic")]
         [DataRow("JamesHealey94")]
         [DataRow("jameshealey94")]
         [DataRow("robconery")]
@@ -27,6 +35,7 @@ namespace GithubSearch.Tests.Controllers
         }
 
         [DataTestMethod]
+        [TestCategory("Basic")]
         [DataRow("JamesHealey94")]
         [DataRow("jameshealey94")]
         [DataRow("robconery")]
@@ -38,6 +47,7 @@ namespace GithubSearch.Tests.Controllers
         }
 
         [DataTestMethod]
+        [TestCategory("Basic")]
         [DataRow("JamesHealey94")]
         [DataRow("jameshealey94")]
         [DataRow("robconery")]
@@ -49,6 +59,7 @@ namespace GithubSearch.Tests.Controllers
         }
 
         [DataTestMethod]
+        [TestCategory("Basic")]
         [DataRow("norepos")] // https://api.github.com/users/norepos/repos
         public async Task Should_Return_Result_Without_Repositories(string username)
         {
@@ -63,6 +74,7 @@ namespace GithubSearch.Tests.Controllers
         //Username cannot begin or end with a hyphen.
         //Maximum of 39 characters.
         [DataTestMethod]
+        [TestCategory("Validation")]
         [DataRow("")]
         [DataRow("a_b")]
         //[DataRow("a--b")] Looks like this may have once been valid: https://api.github.com/users/hello--world
@@ -76,8 +88,7 @@ namespace GithubSearch.Tests.Controllers
             Assert.IsNull(result);
         }
 
-        [DataTestMethod]
-        public async Task Should_Go_To_Api_If_Not_Cached()
+        private static Mock<HttpMessageHandler> GetHandlerMock()
         {
             var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
             handlerMock
@@ -92,13 +103,21 @@ namespace GithubSearch.Tests.Controllers
                    StatusCode = HttpStatusCode.OK,
                    Content = new StringContent(
                        @"{
-                          ""repos_url"": ""https://api.github.com/users/test/repos""
+                            ""repos_url"": ""https://api.github.com/users/test/repos""
                         }",
                        System.Text.Encoding.UTF8,
                        "application/json"),
                });
+            return handlerMock;
+        }
+
+        [TestCategory("Caching")]
+        [TestMethod]
+        public async Task Should_Go_To_Api_If_Not_Cached()
+        {
+            var handlerMock = GetHandlerMock();
             var httpClient = new HttpClient(handlerMock.Object);
-            var userService = new UserService(new UserRepository(httpClient));
+            var userService = new UserService(new UserRepository(new MemoryCache("cache"), httpClient));
 
 
             var result = await userService.GetUser("test");
@@ -115,6 +134,61 @@ namespace GithubSearch.Tests.Controllers
                ),
                ItExpr.IsAny<CancellationToken>()
             );
+        }
+
+        [TestCategory("Caching")]
+        [TestMethod]
+        public async Task Should_Add_User_To_Cache()
+        {
+            var handlerMock = GetHandlerMock();
+            var httpClient = new HttpClient(handlerMock.Object);
+            var cache = new MemoryCache("cache");
+            var userService = new UserService(new UserRepository(cache, httpClient));
+
+            await userService.GetUser("test");
+
+            Assert.IsTrue(cache.Contains("test"));
+        }
+
+        [DataTestMethod]
+        [TestCategory("Caching")]
+        [DataRow("jameshealey94")]
+        public async Task Should_Return_Result_For_Cached_User(string username)
+        {
+            var result1 = await UserService.GetUser(username);
+            var result2 = await UserService.GetUser(username);
+
+            Assert.IsNotNull(result1);
+            Assert.IsNotNull(result2);
+        }
+        
+        [DataTestMethod]
+        [TestCategory("Caching")]
+        [DataRow("jameshealey94")]
+        public async Task Should_Return_Result_For_Cached_Users_Repositories(string username)
+        {
+            var result1 = await UserService.GetUser(username);
+            var result2 = await UserService.GetUser(username);
+
+            Assert.IsNotNull(result1.Repositories);
+            Assert.IsNotNull(result2.Repositories);
+        }
+
+        [DataTestMethod]
+        [TestCategory("Caching")]
+        [DataRow("jameshealey94")]
+        public async Task Should_Return_Updated_Result_For_Modified_User(string username)
+        {
+            var handlerMock = GetHandlerMock();
+            var httpClient = new HttpClient(handlerMock.Object);
+            var cache = new MemoryCache("cache");
+            var userService = new UserService(new UserRepository(cache, httpClient));
+
+            var result1 = await userService.GetUser(username);
+            var result2 = await userService.GetUser(username);
+
+            Assert.IsNotNull(result1);
+            Assert.IsNotNull(result2);
         }
     }
 }
