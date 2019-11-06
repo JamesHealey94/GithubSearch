@@ -1,6 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using Moq.Protected;
+using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GithubSearch.Tests.Controllers
@@ -69,6 +74,47 @@ namespace GithubSearch.Tests.Controllers
             var result = await UserService.GetUser(search);
 
             Assert.IsNull(result);
+        }
+
+        [DataTestMethod]
+        public async Task Should_Go_To_Api_If_Not_Cached()
+        {
+            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            handlerMock
+               .Protected()
+               .Setup<Task<HttpResponseMessage>>(
+                  "SendAsync",
+                  ItExpr.IsAny<HttpRequestMessage>(),
+                  ItExpr.IsAny<CancellationToken>()
+               )
+               .ReturnsAsync(new HttpResponseMessage()
+               {
+                   StatusCode = HttpStatusCode.OK,
+                   Content = new StringContent(
+                       @"{
+                          ""repos_url"": ""https://api.github.com/users/test/repos""
+                        }",
+                       System.Text.Encoding.UTF8,
+                       "application/json"),
+               });
+            var httpClient = new HttpClient(handlerMock.Object);
+            var userService = new UserService(new UserRepository(httpClient));
+
+
+            var result = await userService.GetUser("test");
+
+
+            var expectedUri1 = new Uri("https://api.github.com/users/test");
+            var expectedUri2 = new Uri("https://api.github.com/users/test/repos");
+            handlerMock.Protected().Verify(
+               "SendAsync",
+               Times.Exactly(2),
+               ItExpr.Is<HttpRequestMessage>(req =>
+                  req.Method == HttpMethod.Get
+                  && (req.RequestUri == expectedUri1 || req.RequestUri == expectedUri2)
+               ),
+               ItExpr.IsAny<CancellationToken>()
+            );
         }
     }
 }
