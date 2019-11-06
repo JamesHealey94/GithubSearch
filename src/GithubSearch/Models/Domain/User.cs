@@ -7,6 +7,7 @@ namespace GithubSearch.Models.Domain
     public class User
     {
         public string Username { get; set; }
+        public string Name { get; set; }
         public Uri AvatarUrl { get; set; }
         public IEnumerable<Repository> Repositories { get; set; }
         public Uri ProfileUrl { get; set; }
@@ -22,6 +23,7 @@ namespace GithubSearch.Models.Domain
                 return new User
                 {
                     Username = user.Login,
+                    Name = user.Name,
                     AvatarUrl = user.Avatar_Url,
                     ProfileUrl = user.Html_Url,
                     Repositories = repos?.Select(r =>

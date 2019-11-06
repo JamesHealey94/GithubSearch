@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.Caching;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GithubSearch
@@ -43,7 +44,7 @@ namespace GithubSearch
                 request.Headers.Add("If-None-Match", user.ETag?.Tag);
             }
 
-            var response = await httpClient.SendAsync(request);
+            var response = await httpClient.SendAsync(request, new CancellationToken());
 
             switch (response.StatusCode)
             {
@@ -83,7 +84,7 @@ namespace GithubSearch
                 repos = new Models.Response.RepositoryCacheValue();
             }
 
-            var response = await httpClient.SendAsync(request);
+            var response = await httpClient.SendAsync(request, new CancellationToken());
 
             switch (response.StatusCode)
             {

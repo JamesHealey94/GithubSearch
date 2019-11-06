@@ -6,6 +6,7 @@ namespace GithubSearch.Models.Response
     class User
     {
         public string Login { get; set; }
+        public string Name { get; set; }
         public Uri Avatar_Url { get; set; }
         public Uri Repos_Url { get; set; }
         public Uri Html_Url { get; set; }
