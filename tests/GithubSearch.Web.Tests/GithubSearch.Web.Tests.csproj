@@ -99,7 +99,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\GithubSearch.Web\GithubSearch.Web.csproj">
+    <ProjectReference Include="..\..\src\GithubSearch.Web\GithubSearch.Web.csproj">
       <Project>{7BB3944A-5B9B-40E9-BCAA-D1A8D08A095E}</Project>
       <Name>GithubSearch.Web</Name>
     </ProjectReference>
