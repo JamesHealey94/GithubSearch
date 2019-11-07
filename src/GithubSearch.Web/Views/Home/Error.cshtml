@@ -1,0 +1,17 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<div class="jumbotron">
+    <h1>Search</h1>
+    <p class="lead">Search for a Github user</p>
+</div>
+
+<h3>Oops, something went wrong! Try again soon!</h3>
+
+<form action="/Home/User" method="get">
+    <div class="mx-auto input-group-lg" style="width: 250px;">
+        <input type="text" class="form-control" name="search" placeholder="Username" value="jameshealey94" aria-labelledby="Username">
+        <input type="submit" class="btn btn-primary btn-lg" value="Search">
+    </div>
+</form>

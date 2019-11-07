@@ -42,7 +42,7 @@ namespace GithubSearch.Tests.Controllers
         public async Task Should_Go_To_Api_If_Not_Cached()
         {
             var handlerMock = GetHandlerMock();
-            var httpClient = new HttpClient(handlerMock.Object);
+            var httpClient = new GithubClient(handlerMock.Object);
             var userService = new UserService(new UserRepository(new MemoryCache("cache"), httpClient));
 
 
@@ -67,7 +67,7 @@ namespace GithubSearch.Tests.Controllers
         public async Task Should_Add_User_To_Cache()
         {
             var handlerMock = GetHandlerMock();
-            var httpClient = new HttpClient(handlerMock.Object);
+            var httpClient = new GithubClient(handlerMock.Object);
             var cache = new MemoryCache("cache");
             var userService = new UserService(new UserRepository(cache, httpClient));
 
@@ -145,7 +145,7 @@ namespace GithubSearch.Tests.Controllers
         }
     }
 
-    public class MockHttpClient : HttpClient
+    public class MockHttpClient : GithubClient
     {
         public HttpResponseMessage Response = new HttpResponseMessage
             {

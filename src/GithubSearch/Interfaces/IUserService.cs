@@ -5,6 +5,6 @@ namespace GithubSearch
 {
     public interface IUserService
     {
-        Task<User> GetUser(string username);
+        Task<User> GetUser(string username, int limitTopRepos);
     }
 }

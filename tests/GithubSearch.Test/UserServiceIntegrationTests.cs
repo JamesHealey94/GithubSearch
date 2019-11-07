@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
-using System.Net.Http;
 using System.Runtime.Caching;
 using System.Threading.Tasks;
 
@@ -14,10 +13,11 @@ namespace GithubSearch.Tests.Controllers
         [TestInitialize]
         public void Setup()
         {
-            UserService = new UserService(new UserRepository(new MemoryCache("cache"), new HttpClient()));
+            UserService = new UserService(new UserRepository(new MemoryCache("cache"), new GithubClient()));
         }
 
         [DataTestMethod]
+        [TestCategory("Integration")]
         [TestCategory("Basic")]
         [DataRow("JamesHealey94")]
         [DataRow("jameshealey94")]
@@ -30,6 +30,7 @@ namespace GithubSearch.Tests.Controllers
         }
 
         [DataTestMethod]
+        [TestCategory("Integration")]
         [TestCategory("Basic")]
         [DataRow("JamesHealey94")]
         [DataRow("jameshealey94")]
@@ -42,6 +43,7 @@ namespace GithubSearch.Tests.Controllers
         }
 
         [DataTestMethod]
+        [TestCategory("Integration")]
         [TestCategory("Basic")]
         [DataRow("JamesHealey94")]
         [DataRow("jameshealey94")]
@@ -54,6 +56,7 @@ namespace GithubSearch.Tests.Controllers
         }
 
         [DataTestMethod]
+        [TestCategory("Integration")]
         [TestCategory("Basic")]
         [DataRow("norepos")] // https://api.github.com/users/norepos/repos
         public async Task Should_Return_Result_Without_Repositories(string username)
@@ -69,6 +72,7 @@ namespace GithubSearch.Tests.Controllers
         //Username cannot begin or end with a hyphen.
         //Maximum of 39 characters.
         [DataTestMethod]
+        [TestCategory("Integration")]
         [TestCategory("Validation")]
         [DataRow("")]
         [DataRow("a_b")]
@@ -85,6 +89,7 @@ namespace GithubSearch.Tests.Controllers
 
         [DataTestMethod]
         [TestCategory("Caching")]
+        [TestCategory("Integration")]
         [DataRow("jameshealey94")]
         public async Task Should_Return_Result_For_Cached_User(string username)
         {
@@ -97,6 +102,7 @@ namespace GithubSearch.Tests.Controllers
         
         [DataTestMethod]
         [TestCategory("Caching")]
+        [TestCategory("Integration")]
         [DataRow("jameshealey94")]
         public async Task Should_Return_Result_For_Cached_Users_Repositories(string username)
         {

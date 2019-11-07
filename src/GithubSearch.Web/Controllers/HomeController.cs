@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Net.Http;
-using System.Runtime.Caching;
+﻿using GithubSearch.Web.Services;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
@@ -8,7 +6,14 @@ namespace GithubSearch.Web.Controllers
 {
     public class HomeController : Controller
     {
-        readonly IUserService UserService = new UserService(new UserRepository(new MemoryCache("cache"), new HttpClient()));
+        private readonly IUserService userService;
+        private readonly ISearchTermValidator searchTermValidator;
+
+        public HomeController(IUserService userService, ISearchTermValidator searchTermValidator)
+        {
+            this.userService = userService;
+            this.searchTermValidator = searchTermValidator;
+        }
 
         [HttpGet]
         public ActionResult Index()
@@ -19,19 +24,44 @@ namespace GithubSearch.Web.Controllers
         [HttpGet]
         public async new Task<ActionResult> User(string search, int take = 5)
         {
-            if (search == null)
+            if (!searchTermValidator.IsValid(search))
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Invalid");
             }
-            
-            Models.User user = await UserService.GetUser(search);
-            if (user == null)
-            {
-                return HttpNotFound();
-            }
-            user.Repositories = user.Repositories.OrderByDescending(r => r.Stargazers).Take(take);
 
-            return View(user);
+            try
+            {
+                Models.User user = await userService.GetUser(search, take);
+
+                if (user == null)
+                {
+                    return RedirectToAction("NotFound");
+                }
+
+                return View(user);
+            }
+            catch
+            {
+                return RedirectToAction("Error");
+            }
+        }
+
+        [HttpGet]
+        public ActionResult Invalid()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult NotFound()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult Error()
+        {
+            return View();
         }
     }
 }

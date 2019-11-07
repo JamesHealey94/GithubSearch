@@ -19,9 +19,6 @@ namespace GithubSearch
         {
             this.cache = cache;
             this.httpClient = httpClient;
-            this.httpClient.BaseAddress = new Uri("https://api.github.com/users/");
-            this.httpClient.DefaultRequestHeaders.Add("User-Agent", "jameshealey94"); // https://developer.github.com/v3/#user-agent-required
-            this.httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json"); // https://developer.github.com/v3/media
         }
 
         public async Task<User> GetUser(string username)
@@ -29,16 +26,16 @@ namespace GithubSearch
             var user = await GetUserInternal(username);
             var repos = await GetRepositories(user?.Repos_Url);
 
-            return Models.Response.User.ToDomain(user, repos);
+            return Models.Internal.User.ToDomain(user, repos);
         }
 
-        private async Task<Models.Response.User> GetUserInternal(string username)
+        private async Task<Models.Internal.User> GetUserInternal(string username)
         {
-            if (String.IsNullOrWhiteSpace(username)) return null;
+            if (string.IsNullOrWhiteSpace(username)) return null;
 
             var request = new HttpRequestMessage(HttpMethod.Get, username);
 
-            var user = cache.Get(username) as Models.Response.User;
+            var user = cache.Get(username) as Models.Internal.User;
             if (user != null)
             {
                 Debug.WriteLine($"Found '{username}' in cache with ETag '{user.ETag?.Tag}'");
@@ -51,7 +48,7 @@ namespace GithubSearch
             {
                 case HttpStatusCode.OK:
                     Debug.WriteLine($"'{username}' modified, updating cache");
-                    user = await response.Content.ReadAsAsync<Models.Response.User>();
+                    user = await response.Content.ReadAsAsync<Models.Internal.User>();
                     user.ETag = response.Headers.ETag;
                     cache.Set(username, user, new CacheItemPolicy());
                     break;
@@ -68,13 +65,13 @@ namespace GithubSearch
             return user;
         }
 
-        private async Task<IEnumerable<Models.Response.Repository>> GetRepositories(Uri url)
+        private async Task<IEnumerable<Models.Internal.Repository>> GetRepositories(Uri url)
         {
-            if (url == null || String.IsNullOrWhiteSpace(url.AbsoluteUri)) return null;
+            if (url == null || string.IsNullOrWhiteSpace(url.AbsoluteUri)) return null;
 
             var request = new HttpRequestMessage(HttpMethod.Get, url);
 
-            var repos = cache.Get(url.AbsoluteUri) as Models.Response.RepositoryCacheValue;
+            var repos = cache.Get(url.AbsoluteUri) as Models.Internal.RepositoryCacheValue;
             if (repos != null)
             {
                 Debug.WriteLine($"Found repos for '{url.AbsoluteUri}' in cache with ETag '{repos.ETag?.Tag}'");
@@ -82,7 +79,7 @@ namespace GithubSearch
             }
             else
             {
-                repos = new Models.Response.RepositoryCacheValue();
+                repos = new Models.Internal.RepositoryCacheValue();
             }
 
             var response = await httpClient.SendAsync(request, new CancellationToken());
@@ -91,7 +88,7 @@ namespace GithubSearch
             {
                 case HttpStatusCode.OK:
                     Debug.WriteLine($"Repos for '{url}' modified, updating cache");
-                    repos.Repositories = await response.Content.ReadAsAsync<IEnumerable<Models.Response.Repository>>();
+                    repos.Repositories = await response.Content.ReadAsAsync<IEnumerable<Models.Internal.Repository>>();
                     repos.ETag = response.Headers.ETag;
                     cache.Set(url.AbsoluteUri, repos, new CacheItemPolicy());
                     break;

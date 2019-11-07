@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 
-namespace GithubSearch.Models.Response
+namespace GithubSearch.Models.Internal
 {
-    class User
+    internal class User
     {
         public string Login { get; set; }
         public string Name { get; set; }

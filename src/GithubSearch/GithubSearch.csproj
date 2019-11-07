@@ -48,13 +48,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IUserService.cs" />
-    <Compile Include="IUserRepository.cs" />
-    <Compile Include="Models\Response\Repository.cs" />
-    <Compile Include="Models\Response\RepositoryCacheValue.cs" />
-    <Compile Include="Models\Response\User.cs" />
-    <Compile Include="UserRepository.cs" />
-    <Compile Include="UserService.cs" />
+    <Compile Include="Clients\GithubClient.cs" />
+    <Compile Include="Interfaces\IUserService.cs" />
+    <Compile Include="Interfaces\IUserRepository.cs" />
+    <Compile Include="Models\Internal\Repository.cs" />
+    <Compile Include="Models\Internal\RepositoryCacheValue.cs" />
+    <Compile Include="Models\Internal\User.cs" />
+    <Compile Include="Repositories\UserRepository.cs" />
+    <Compile Include="Services\UserService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
