@@ -3,7 +3,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GithubSearch.Web.Services;
 using GithubSearch.Web.Controllers;
 using System.Runtime.Caching;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace GithubSearch.Web.Tests.Controllers
@@ -16,7 +15,8 @@ namespace GithubSearch.Web.Tests.Controllers
             return new HomeController(
                 new UserService(
                     new UserRepository(
-                        new MemoryCache("cache"), new HttpClient())),
+                        new MemoryCache("cache"),
+                        new GithubClient())),
                 new GithubSearchTermValidator());
         }
 

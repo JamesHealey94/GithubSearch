@@ -1,4 +1,6 @@
 ﻿using GithubSearch.Web.Services;
+using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
@@ -40,8 +42,11 @@ namespace GithubSearch.Web.Controllers
 
                 return View(user);
             }
-            catch
+            catch (Exception ex)
             {
+                Debug.WriteLine("Exception");
+                Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
                 return RedirectToAction("Error");
             }
         }
