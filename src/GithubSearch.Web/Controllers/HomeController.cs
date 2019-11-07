@@ -1,30 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Linq;
+using System.Net.Http;
+using System.Runtime.Caching;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace GithubSearch.Web.Controllers
 {
     public class HomeController : Controller
     {
+        readonly IUserService UserService = new UserService(new UserRepository(new MemoryCache("cache"), new HttpClient()));
+
+        [HttpGet]
         public ActionResult Index()
         {
             return View();
         }
 
-        public ActionResult About()
+        [HttpGet]
+        public async new Task<ActionResult> User(string search, int take = 5)
         {
-            ViewBag.Message = "Your application description page.";
+            if (search == null)
+            {
+                return RedirectToAction("Index");
+            }
+            
+            Models.User user = await UserService.GetUser(search);
+            if (user == null)
+            {
+                return HttpNotFound();
+            }
+            user.Repositories = user.Repositories.OrderByDescending(r => r.Stargazers).Take(take);
 
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
+            return View(user);
         }
     }
 }

@@ -2,6 +2,7 @@
 using Moq;
 using Moq.Protected;
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.Caching;
@@ -161,7 +162,7 @@ namespace GithubSearch.Tests.Controllers
 
         public override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            Console.WriteLine("Mock SendAsync");
+            Debug.WriteLine("Mock SendAsync");
             return Task.FromResult(Response);
         }
     }

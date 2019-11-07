@@ -1,6 +1,7 @@
-﻿using GithubSearch.Models.Domain;
+﻿using GithubSearch.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.Caching;
@@ -28,7 +29,7 @@ namespace GithubSearch
             var user = await GetUserInternal(username);
             var repos = await GetRepositories(user?.Repos_Url);
 
-            return User.From(user, repos);
+            return Models.Response.User.ToDomain(user, repos);
         }
 
         private async Task<Models.Response.User> GetUserInternal(string username)
@@ -40,7 +41,7 @@ namespace GithubSearch
             var user = cache.Get(username) as Models.Response.User;
             if (user != null)
             {
-                Console.WriteLine($"Found '{username}' in cache with ETag '{user.ETag?.Tag}'");
+                Debug.WriteLine($"Found '{username}' in cache with ETag '{user.ETag?.Tag}'");
                 request.Headers.Add("If-None-Match", user.ETag?.Tag);
             }
 
@@ -49,18 +50,18 @@ namespace GithubSearch
             switch (response.StatusCode)
             {
                 case HttpStatusCode.OK:
-                    Console.WriteLine($"'{username}' modified, updating cache");
+                    Debug.WriteLine($"'{username}' modified, updating cache");
                     user = await response.Content.ReadAsAsync<Models.Response.User>();
                     user.ETag = response.Headers.ETag;
                     cache.Set(username, user, new CacheItemPolicy());
                     break;
 
                 case HttpStatusCode.NotModified:
-                    Console.WriteLine($"'{username}' not modified, using existing cache result");
+                    Debug.WriteLine($"'{username}' not modified, using existing cache result");
                     break;
 
                 default:
-                    Console.WriteLine($"Unexpected response status code ({response.StatusCode}) for user '{username}'");
+                    Debug.WriteLine($"Unexpected response status code ({response.StatusCode}) for user '{username}'");
                     break;
             }
 
@@ -76,7 +77,7 @@ namespace GithubSearch
             var repos = cache.Get(url.AbsoluteUri) as Models.Response.RepositoryCacheValue;
             if (repos != null)
             {
-                Console.WriteLine($"Found repos for '{url.AbsoluteUri}' in cache with ETag '{repos.ETag?.Tag}'");
+                Debug.WriteLine($"Found repos for '{url.AbsoluteUri}' in cache with ETag '{repos.ETag?.Tag}'");
                 request.Headers.Add("If-None-Match", repos.ETag?.Tag);
             }
             else
@@ -89,18 +90,18 @@ namespace GithubSearch
             switch (response.StatusCode)
             {
                 case HttpStatusCode.OK:
-                    Console.WriteLine($"Repos for '{url}' modified, updating cache");
+                    Debug.WriteLine($"Repos for '{url}' modified, updating cache");
                     repos.Repositories = await response.Content.ReadAsAsync<IEnumerable<Models.Response.Repository>>();
                     repos.ETag = response.Headers.ETag;
                     cache.Set(url.AbsoluteUri, repos, new CacheItemPolicy());
                     break;
 
                 case HttpStatusCode.NotModified:
-                    Console.WriteLine($"Repos for '{url}' not modified, using existing cache result");
+                    Debug.WriteLine($"Repos for '{url}' not modified, using existing cache result");
                     break;
 
                 default:
-                    Console.WriteLine($"Unexpected response status code ({response.StatusCode}) for '{url}'");
+                    Debug.WriteLine($"Unexpected response status code ({response.StatusCode}) for '{url}'");
                     break;
             }
 

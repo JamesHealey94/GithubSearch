@@ -73,6 +73,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\GithubSearch.Models\GithubSearch.Models.csproj">
+      <Project>{BA11625B-B942-4D41-9416-F372F3B1F357}</Project>
+      <Name>GithubSearch.Models</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\GithubSearch\GithubSearch.csproj">
       <Project>{2e2a1d53-28ba-4835-812e-321870e9e628}</Project>
       <Name>GithubSearch</Name>

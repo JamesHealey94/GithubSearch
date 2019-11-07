@@ -1,9 +1,9 @@
-﻿using GithubSearch.Models.Domain;
+﻿using GithubSearch.Models;
 using System.Threading.Tasks;
 
 namespace GithubSearch
 {
-    public class UserService
+    public class UserService : IUserService
     {
         private readonly IUserRepository repository;
 
@@ -14,7 +14,9 @@ namespace GithubSearch
 
         public async Task<User> GetUser(string username)
         {
-            return await repository.GetUser(username);
+            if (string.IsNullOrWhiteSpace(username)) { return null; }
+
+            return await repository.GetUser(username.Trim());
         }
     }
 }

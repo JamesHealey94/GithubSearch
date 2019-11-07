@@ -1,4 +1,4 @@
-﻿namespace GithubSearch.Models.Domain
+﻿namespace GithubSearch.Models
 {
     public class Repository
     {

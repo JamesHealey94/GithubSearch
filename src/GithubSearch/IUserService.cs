@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace GithubSearch
 {
-    public interface IUserRepository
+    public interface IUserService
     {
         Task<User> GetUser(string username);
     }

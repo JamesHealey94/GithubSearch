@@ -1,0 +1,43 @@
+﻿@model GithubSearch.Models.User
+
+@{
+    ViewBag.Title = @Html.DisplayFor(model => model.Username);
+}
+
+<div class="jumbotron">
+    <h1>@Html.DisplayFor(model => model.Username)</h1>
+    <img src=@Html.DisplayFor(model => model.AvatarUrl) class="img-circle" style="width: 125px" alt="Profile Picture">
+    <p class="lead">@Html.DisplayFor(model => model.Name)</p>
+</div>
+
+<h4>Repositories</h4>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Stars</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var repo in Model.Repositories)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => repo.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => repo.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => repo.Stargazers)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href=@Html.DisplayFor(model => model.ProfileUrl) class="btn btn-default">View on Github</a>
+
+<p class="btn btn-default">@Html.ActionLink("Back to Search", "Index")</p>
