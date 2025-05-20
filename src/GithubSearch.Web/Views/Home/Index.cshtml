@@ -2,14 +2,50 @@
     ViewBag.Title = "Search";
 }
 
-<div class="jumbotron">
+<div class="jumbotron text-center">
     <h1>Search</h1>
-    <p class="lead">Search for a Github user</p>
+    <h4 class="lead">Search for a Github user</h4>
 </div>
 
-<form action="/Home/User" method="get">
-    <div class="mx-auto input-group-lg" style="width: 250px;">
-        <input type="text" class="form-control" name="search" placeholder="Username" value="jameshealey94" aria-labelledby="Username">
-        <input type="submit" class="btn btn-primary btn-lg" value="Search">
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="search-container p-4 my-4">
+            <form action="/Home/User" method="get">
+                <div class="input-group input-group-lg mb-3">
+                    <input type="text" class="form-control" name="search" placeholder="Username" value="jameshealey94" aria-label="Username">
+                    <div class="input-group-append">
+                        <input type="submit" class="btn btn-primary btn-lg" value="Search">
+                    </div>
+                </div>
+            </form>
+            <div id="loadingIndicator" style="display: none; text-align: center; margin-top: 20px;">
+                <p>Loading user information...</p>
+                <!-- Bootstrap spinner can be added here if desired -->
+                <!-- e.g., <div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div> -->
+            </div>
+        </div>
     </div>
-</form>
+</div>
+
+@section scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Ensure the form selector is specific enough if multiple forms exist
+            var form = document.querySelector('form[action="/Home/User"]');
+            if (form) {
+                form.addEventListener('submit', function () {
+                    var loadingIndicator = document.getElementById('loadingIndicator');
+                    if (loadingIndicator) {
+                        // Disable the submit button to prevent multiple submissions
+                        var submitButton = form.querySelector('input[type="submit"]');
+                        if (submitButton) {
+                            submitButton.disabled = true;
+                            submitButton.value = 'Searching...';
+                        }
+                        loadingIndicator.style.display = 'block';
+                    }
+                });
+            }
+        });
+    </script>
+}

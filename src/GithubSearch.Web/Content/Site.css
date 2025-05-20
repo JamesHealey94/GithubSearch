@@ -1,6 +1,24 @@
-﻿body {
-    padding-top: 50px;
+﻿:root {
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --text-color: #212529;
+  --link-hover-color: #0056b3; /* Darker blue for link hover */
+}
+
+body {
+    padding-top: 50px; /* For fixed navbar */
     padding-bottom: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--text-color);
+}
+
+a {
+  color: var(--primary-color);
+}
+
+a:hover {
+  color: var(--link-hover-color);
+  text-decoration: none; /* Optional: remove underline on hover if desired */
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -9,16 +27,37 @@
     padding-right: 15px;
 }
 
-/* Override the default bootstrap behavior where horizontal description lists 
-   will truncate terms that are too long to fit in the left column 
+/* Override the default bootstrap behavior where horizontal description lists
+   will truncate terms that are too long to fit in the left column
 */
 .dl-horizontal dt {
     white-space: normal;
 }
 
 /* Set width on the form input elements since they're 100% wide by default */
+/* Consider removing this if you want form elements to be more responsive
+   or use Bootstrap's form layout classes (e.g. col-md-6) more extensively. */
 input,
 select,
 textarea {
     max-width: 280px;
+}
+
+.search-container {
+  background-color: #f8f9fa; /* Light grey background */
+  border: 1px solid #dee2e6; /* Subtle border */
+  border-radius: 0.25rem; /* Rounded corners */
+  /* Consider adding some box-shadow for depth if desired */
+  /* box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); */
+}
+
+/* Ensure Bootstrap's jumbotron text color is legible with the new body text color, if changed.
+   Bootstrap's default jumbotron styling should handle this, but it's good to keep in mind. */
+
+/* Footer styling - making it a bit more distinct */
+footer {
+    border-top: 1px solid #e9ecef; /* Light border top */
+    padding-top: 15px;
+    color: #6c757d; /* Secondary text color */
+    font-size: 0.9em;
 }

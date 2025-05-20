@@ -54,33 +54,43 @@ namespace GithubSearch.Web.Tests.Controllers
         [TestMethod]
         [TestCategory("Controller")]
         [TestCategory("Integration")]
-        [DataRow("test?:test")]
-        public async Task Invalid(string search)
+        [DataRow("test?:test")] // Invalid character
+        [DataRow("thisstringiswaytoolongandshouldfailthevalidationforthesearchterm")] // Too long
+        [DataRow("")] // Empty string
+        [DataRow(null)] // Null string
+        public async Task User_InvalidSearchTerm_ShouldRedirectToInvalidAction(string search)
         {
             // Arrange
             var controller = GetController();
 
             // Act
-            var result = await controller.User(search) as ViewResult;
+            var result = await controller.User(search) as RedirectToRouteResult;
 
             // Assert
-            Assert.IsNull(result);
+            Assert.IsNotNull(result, "Result should be a RedirectToRouteResult.");
+            Assert.AreEqual("Invalid", result.RouteValues["action"]);
         }
 
         [TestMethod]
         [TestCategory("Controller")]
         [TestCategory("Integration")]
-        [DataRow("thisaccountdoesnotexist")]
-        public async Task NotFound(string search)
+        // This username is highly unlikely to exist and should trigger the NotFound path
+        // Note: This is an integration test and relies on the actual GitHub API response.
+        // For a unit test, IUserService would be mocked.
+        [DataRow("nonexistentuser1234567890zxcvbnm")]
+        public async Task User_UserNotFound_ShouldRedirectToNotFoundAction(string search)
         {
             // Arrange
             var controller = GetController();
 
             // Act
-            var result = await controller.User(search) as ViewResult;
+            // For this test to reliably check the "NotFound" redirect, we assume the GetUser 
+            // service will return null for a truly non-existent user.
+            var result = await controller.User(search) as RedirectToRouteResult;
 
             // Assert
-            Assert.IsNull(result);
+            Assert.IsNotNull(result, "Result should be a RedirectToRouteResult for a non-existent user.");
+            Assert.AreEqual("NotFound", result.RouteValues["action"]);
         }
     }
 }

@@ -1,43 +1,64 @@
 ﻿@model GithubSearch.Models.User
 
 @{
-    ViewBag.Title = @Html.DisplayFor(model => model.Username);
+    ViewBag.Title = Model?.Username ?? "User Not Found";
 }
 
-<div class="jumbotron">
-    <h1>@Html.DisplayFor(model => model.Username)</h1>
-    <img src=@Html.DisplayFor(model => model.AvatarUrl) class="img-circle" style="width: 125px" alt="Profile Picture">
-    <p class="lead">@Html.DisplayFor(model => model.Name)</p>
-</div>
+@if (Model == null || string.IsNullOrEmpty(Model.Username) || Model.AvatarUrl == null) // Added AvatarUrl check as a proxy for a valid user
+{
+    <div class="alert alert-warning text-center mt-4" role="alert">
+        User not found or information could not be retrieved. Please try a different username.
+    </div>
+    <div class="text-center mt-3">
+        @Html.ActionLink("Back to Search", "Index", null, new { @class = "btn btn-secondary" })
+    </div>
+}
+else
+{
+    <div class="jumbotron text-center">
+        <img src=@Html.DisplayFor(model => model.AvatarUrl) class="rounded-circle img-thumbnail mb-3" style="width: 200px;" alt="Profile Picture">
+        <h1>@Html.DisplayFor(model => model.Username)</h1>
+        <p class="lead"><strong>@Html.DisplayFor(model => model.Name)</strong></p>
+    </div>
 
-<h4>Repositories</h4>
+    @if (Model.Repositories != null && Model.Repositories.Any())
+    {
+        <h4>Repositories</h4>
+        <table class="table table-hover table-striped table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Stars</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var repo in Model.Repositories)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => repo.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => repo.Description)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => repo.Stargazers)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info mt-4" role="alert">
+            This user has no public repositories.
+        </div>
+    }
 
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Description</th>
-            <th scope="col">Stars</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var repo in Model.Repositories)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => repo.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => repo.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => repo.Stargazers)
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<a href=@Html.DisplayFor(model => model.ProfileUrl) class="btn btn-default">View on Github</a>
-
-<p class="btn btn-default">@Html.ActionLink("Back to Search", "Index")</p>
+    <div class="mt-4">
+        <a href=@Html.DisplayFor(model => model.ProfileUrl) class="btn btn-primary mr-2">View on Github</a>
+        @Html.ActionLink("Back to Search", "Index", null, new { @class = "btn btn-secondary" })
+    </div>
+}
